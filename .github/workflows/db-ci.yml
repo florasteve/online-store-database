@@ -1,0 +1,85 @@
+name: DB CI (build + smoke + tSQLt)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: db-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      SA_PASSWORD: YourStrong!Passw0rd
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start SQL Server via Docker Compose
+        run: |
+          docker compose -f docker/docker-compose.yml up -d
+          # Wait for container health
+          for i in {1..60}; do
+            if docker ps --filter "name=store-mssql" --filter "health=healthy" --format "{{.Status}}" | grep -qi healthy; then
+              echo "SQL Server is healthy."; break
+            fi
+            echo "Waiting for SQL Server..."
+            sleep 3
+          done
+          docker ps
+
+      - name: Apply SQL (schema → procs → triggers → views → seed → extras)
+        run: |
+          set -e
+          # Core files
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -i /var/opt/sql/01_schema.sql
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -i /var/opt/sql/04_procs.sql || true
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -i /var/opt/sql/05_triggers.sql || true
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -i /var/opt/sql/03_views.sql || true
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -i /var/opt/sql/02_seed.sql || true
+          # Optional extras in order, if present
+          for f in /var/opt/sql/06_migrations.sql /var/opt/sql/07_order_ops.sql /var/opt/sql/08_views_status.sql /var/opt/sql/09_view_low_stock.sql /var/opt/sql/10_constraints.sql /var/opt/sql/11_categories.sql /var/opt/sql/12_close_order.sql; do
+            if docker exec store-mssql test -f "$f"; then
+              echo "Applying $f"
+              /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -i "$f" || true
+            fi
+          done
+
+      - name: Smoke queries
+        run: |
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -Q "USE OnlineStoreDB; SELECT COUNT(*) AS Tables FROM sys.tables;"
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -Q "USE OnlineStoreDB; SELECT TOP 3 * FROM dbo.vwOrderSummary;"
+
+      - name: Install unzip (for tSQLt download)
+        run: sudo apt-get update && sudo apt-get install -y unzip
+
+      - name: Download tSQLt (ZIP) and extract class script
+        run: |
+          mkdir -p sql/tests/_tSQLt
+          curl -L -o /tmp/tsqlt.zip http://tsqlt.org/download/tsqlt/
+          unzip -j -o /tmp/tsqlt.zip "*tSQLt.class.sql" -d sql/tests/_tSQLt
+          ls -l sql/tests/_tSQLt
+
+      - name: Enable CLR & install tSQLt
+        run: |
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -Q "EXEC sp_configure 'show advanced options',1; RECONFIGURE;"
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -Q "EXEC sp_configure 'clr enabled',1; RECONFIGURE;"
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -d OnlineStoreDB -i "/var/opt/sql/tests/_tSQLt/tSQLt.class.sql"
+
+      - name: Run test bootstrap & suite (tSQLt.RunAll)
+        run: |
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -d OnlineStoreDB -i "/var/opt/sql/tests/_bootstrap.sql"
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -d OnlineStoreDB -i "/var/opt/sql/tests/10_OrderOps_Tests.sql"
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -d OnlineStoreDB -Q "EXEC tSQLt.RunAll;"
+
+      - name: Diagnostics on failure (logs, health, last errors)
+        if: failure() || always()
+        run: |
+          docker ps
+          docker logs store-mssql | tail -n 200 || true
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -Q "SELECT TOP 50 * FROM sys.messages ORDER BY message_id DESC;" || true
