@@ -1,3 +1,10 @@
+<p align="left">
+  <img alt="Docker" src="https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white">
+  <img alt="SQL Server" src="https://img.shields.io/badge/SQL%20Server-2022-CC2927?logo=microsoft%20sql%20server&logoColor=white">
+  <img alt="License" src="https://img.shields.io/badge/License-MIT-green">
+</p>
+
+> OnlineStoreDB — Dockerized SQL Server demo with normalized schema (Customers, Products, Orders, OrderDetails), computed `Subtotal`, timestamps, procs for safe inserts & lifecycle, analytics views, and seed data.
 # Online Store Database
 
 Relational database for **e-commerce operations and analytics**: customers, products, orders, and order line items.  
@@ -119,3 +126,28 @@ erDiagram
     datetime UpdatedAt
   }
 
+
+## Quickstart
+```bash
+set +H
+export SA_PASSWORD='YourStrong!Passw0rd'
+docker compose -f docker/docker-compose.yml up -d
+# then run the SQL in /sql (schema → procs → triggers → views → seed)
+
+Helpful Views
+
+vwOrderSummary — orders with line counts and totals
+
+vwBestSellers30D — top products by units & revenue (30d)
+
+vwOrderSummaryWithStatus — includes Status
+
+vwLowStock — low inventory products
+
+Windows Scripts
+
+scripts/dev-init.bat — start container & run SQL
+
+scripts/dev-status.bat — quick stats
+
+scripts/report-low-stock.bat — export low-stock CSV
