@@ -32,19 +32,17 @@ jobs:
           docker ps
           sleep 10
 
-      - name: Apply SQL (schema → procs → triggers → views → seed → extras)
+      - name: Apply top-level SQL in order (excludes sql/tests, vendor)
         run: |
-          set -e
-          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -i /var/opt/sql/01_schema.sql
-          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -i /var/opt/sql/04_procs.sql || true
-          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -i /var/opt/sql/05_triggers.sql || true
-          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -i /var/opt/sql/03_views.sql || true
-          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -i /var/opt/sql/02_seed.sql || true
-          for f in /var/opt/sql/06_migrations.sql /var/opt/sql/07_order_ops.sql /var/opt/sql/08_views_status.sql /var/opt/sql/09_view_low_stock.sql /var/opt/sql/10_constraints.sql /var/opt/sql/11_categories.sql /var/opt/sql/12_close_order.sql; do
-            if docker exec store-mssql sh -lc "[ -f \"$f\" ]"; then
-              echo "Applying $f"
-              /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -i "$f" || true
-            fi
+          set -euo pipefail
+          # Final readiness gate
+          for i in {1..60}; do
+            /usr/bin/docker exec store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -Q "SELECT 1" && break || sleep 2
+          done
+          echo "Applying /var/opt/sql/*.sql (top-level only) in lexicographic order..."
+          for f in $(/usr/bin/docker exec store-mssql sh -lc 'ls -1 /var/opt/sql/*.sql 2>/dev/null | sort'); do
+            echo ">> $f"
+            /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -i "$f"
           done
 
       - name: Prepare DB for tSQLt (enable CLR, TRUSTWORTHY ON, owner sa)
