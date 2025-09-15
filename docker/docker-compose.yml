@@ -1,0 +1,20 @@
+services:
+  store-mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: store-mssql
+    ports:
+      - "1435:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD}
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-C", "-S", "localhost", "-U", "SA", "-P", "${SA_PASSWORD}", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - mssql-data:/var/opt/mssql
+      - ../sql:/var/opt/sql
+      - ../data:/var/opt/data
+volumes:
+  mssql-data:
