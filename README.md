@@ -133,6 +133,7 @@ set +H
 export SA_PASSWORD='YourStrong!Passw0rd'
 docker compose -f docker/docker-compose.yml up -d
 # then run the SQL in /sql (schema → procs → triggers → views → seed)
+```
 
 Helpful Views
 
@@ -144,7 +145,7 @@ vwOrderSummaryWithStatus — includes Status
 
 vwLowStock — low inventory products
 
-Windows Scripts
+## Windows Scripts
 
 scripts/dev-init.bat — start container & run SQL
 
