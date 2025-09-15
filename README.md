@@ -17,13 +17,13 @@ docker compose -f docker/docker-compose.yml up -d
   > *then run the SQL in /sql (schema → procs → triggers → views → seed)*
 
 
-## Helpful Views  
+## <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/microsoftsqlserver/microsoftsqlserver-plain.svg" height="20" alt="SQL Server logo"> Helpful Views  
 `vwOrderSummary` — orders with line counts and totals  
 `vwBestSellers30D` — top products by units & revenue (last 30 days)  
 `vwOrderSummaryWithStatus` — includes order `Status`  
 `vwLowStock` — products with low inventory  
 
-## Windows Scripts  
+## <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/windows8/windows8-original.svg" height="20" alt="Windows logo"> Windows Scripts  
 `scripts/dev-init.bat` — start container and run all SQL  
 `scripts/dev-status.bat` — quick container/DB stats  
 `scripts/report-low-stock.bat` — export low-stock CSV to `data/`  
