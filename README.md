@@ -1,3 +1,4 @@
+[![DB CI](https://github.com/florasteve/online-store-database/actions/workflows/db-ci.yml/badge.svg?branch=main)](https://github.com/florasteve/online-store-database/actions/workflows/db-ci.yml)
 # OnlineStoreDB
 
 <p align="left">
