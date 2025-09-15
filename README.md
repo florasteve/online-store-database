@@ -8,7 +8,7 @@
 
 **OnlineStoreDB** — Dockerized SQL Server demo with normalized schema (Customers, Products, Orders, OrderDetails), computed `Subtotal`, timestamps, procs for safe inserts & order lifecycle, analytics views, and seed data.
 
-## Quickstart
+## <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original.svg" height="20" alt="Docker logo"> Quickstart
 ```bash
 set +H
 export SA_PASSWORD='YourStrong!Passw0rd'
