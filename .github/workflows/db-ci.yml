@@ -30,7 +30,7 @@ jobs:
             echo "Waiting for SQL Server..."; sleep 3
           done
           docker ps
-          # Small buffer to let SQL finish starting
+          # Small buffer after health turns healthy
           sleep 10
 
       - name: Apply SQL (schema → procs → triggers → views → seed → extras)
@@ -48,15 +48,17 @@ jobs:
             fi
           done
 
-      - name: Smoke queries
+      - name: Prepare DB for tSQLt (enable CLR, TRUSTWORTHY ON, owner sa)
         run: |
-          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -Q "USE OnlineStoreDB; SELECT COUNT(*) AS Tables FROM sys.tables;"
-          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -Q "USE OnlineStoreDB; SELECT TOP 3 * FROM dbo.vwOrderSummary;"
-
-      - name: Enable CLR & install tSQLt (vendored)
-        run: |
+          # Server-level
           /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -Q "EXEC sp_configure 'show advanced options',1; RECONFIGURE;"
           /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -Q "EXEC sp_configure 'clr enabled',1; RECONFIGURE;"
+          # Database-level trust & owner (needed for CLR strict security)
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -Q "ALTER DATABASE OnlineStoreDB SET TRUSTWORTHY ON;"
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -Q "USE OnlineStoreDB; EXEC sys.sp_changedbowner 'sa';"
+
+      - name: Install tSQLt (vendored)
+        run: |
           /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -d OnlineStoreDB -i "/var/opt/sql/tests/_tSQLt/tSQLt.class.sql"
 
       - name: Run test bootstrap & suite (tSQLt.RunAll)
