@@ -1,0 +1,41 @@
+name: Nightly Low Stock Report
+on:
+  schedule: [ { cron: "0 6 * * *" } ]  # 6:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    env:
+      SA_PASSWORD: ${{ secrets.SA_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start SQL Server
+        run: |
+          docker compose -f docker/docker-compose.yml up -d
+          for i in {1..160}; do
+            if docker ps --filter "name=store-mssql" --filter "health=healthy" --format "{{.Status}}" | grep -qi healthy; then break; fi
+            sleep 3
+          done
+
+      - name: Apply schema (top-level SQLs)
+        run: |
+          /usr/bin/docker exec store-mssql sh -lc '
+            for f in $(ls -1 /var/opt/sql/*.sql | sort); do
+              /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P "$SA_PASSWORD" -i "$f"
+            done
+          '
+
+      - name: Generate CSV
+        run: |
+          /usr/bin/docker exec -i store-mssql /opt/mssql-tools18/bin/sqlcmd \
+            -C -S localhost -U SA -P "$SA_PASSWORD" -d OnlineStoreDB \
+            -h -1 -W -s, \
+            -Q "SET NOCOUNT ON; SELECT ProductID, Name, StockQuantity FROM dbo.vwLowStock ORDER BY StockQuantity, Name" \
+            > low_stock_report.csv
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: low-stock-report
+          path: low_stock_report.csv
