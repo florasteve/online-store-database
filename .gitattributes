@@ -1,0 +1,13 @@
+# Normalize to LF for repo; Windows will still check out CRLF if needed
+* text=auto eol=lf
+
+# Explicit LF for cross-platform scripts/config
+*.sql  text eol=lf
+*.sh   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.md   text eol=lf
+
+# Explicit CRLF for Windows batch files
+*.bat  text eol=crlf
+*.cmd  text eol=crlf

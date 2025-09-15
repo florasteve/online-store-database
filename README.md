@@ -63,3 +63,59 @@ erDiagram
     decimal UnitPrice
     decimal Subtotal
   }
+
+---
+
+## 🧪 Quickstart (Docker)
+```bash
+set +H
+export SA_PASSWORD='YourStrong!Passw0rd'
+docker compose -f docker/docker-compose.yml up -d
+# then run the SQL in /sql (schema, procs, triggers, views, seed)
+
+```
+🗺️ ER Diagram (Mermaid)
+erDiagram
+  CUSTOMERS ||--o{ ORDERS : places
+  ORDERS ||--o{ ORDERDETAILS : has
+  PRODUCTS ||--o{ ORDERDETAILS : contains
+
+  CUSTOMERS {
+    int CustomerID PK
+    string Name
+    string Email
+    string Address
+    datetime CreatedAt
+    datetime UpdatedAt
+  }
+
+  PRODUCTS {
+    int ProductID PK
+    string Name
+    decimal Price
+    int StockQuantity
+    datetime CreatedAt
+    datetime UpdatedAt
+  }
+
+  ORDERS {
+    int OrderID PK
+    int CustomerID FK
+    datetime OrderDate
+    string Status
+    decimal TotalAmount
+    datetime CreatedAt
+    datetime UpdatedAt
+  }
+
+  ORDERDETAILS {
+    int OrderDetailID PK
+    int OrderID FK
+    int ProductID FK
+    int Quantity
+    decimal UnitPrice
+    decimal Subtotal "computed: Quantity*UnitPrice"
+    datetime CreatedAt
+    datetime UpdatedAt
+  }
+
