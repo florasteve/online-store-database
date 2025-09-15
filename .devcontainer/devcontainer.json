@@ -1,0 +1,11 @@
+{
+  "name": "OnlineStoreDB Dev",
+  "build": { "dockerfile": "Dockerfile" },
+  "features": { "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {} },
+  "remoteUser": "vscode",
+  "customizations": { "vscode": { "extensions": [
+    "ms-azuretools.vscode-docker","ms-vscode.powershell","eamodio.gitlens","ms-mssql.mssql"
+  ]}},
+  "mounts": ["source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"],
+  "forwardPorts": [1433]
+}
