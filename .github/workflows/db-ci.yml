@@ -14,7 +14,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     env:
-      SA_PASSWORD: YourStrong!Passw0rd
+      SA_PASSWORD: ${{ secrets.SA_PASSWORD }}
 
     steps:
       - name: Checkout
