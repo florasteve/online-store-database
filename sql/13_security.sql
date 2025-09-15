@@ -1,7 +1,8 @@
+:setvar APPUSER_PASSWORD "App$trongPassw0rd!"
 USE master;
 GO
 IF NOT EXISTS (SELECT 1 FROM sys.sql_logins WHERE name = N'appuser')
-  CREATE LOGIN appuser WITH PASSWORD = 'App$trongPassw0rd!';
+  CREATE LOGIN appuser WITH PASSWORD = '$(APPUSER_PASSWORD)';
 GO
 
 USE OnlineStoreDB;
