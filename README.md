@@ -83,10 +83,9 @@ erDiagram
 SELECT TOP 10 CategoryName, Orders, Units, Revenue
 FROM dbo.vwCategorySales30D
 ORDER BY Revenue DESC;
-
 ```
+
 **Close an order:**
 ```sql
-[200~EXEC dbo.CloseOrder @OrderID = 42;
 EXEC dbo.CloseOrder @OrderID = 42;
-
+```
