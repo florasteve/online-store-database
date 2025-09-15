@@ -1,14 +1,10 @@
-[![DB CI](https://github.com/florasteve/online-store-database/actions/workflows/db-ci.yml/badge.svg?branch=main)](https://github.com/florasteve/online-store-database/actions/workflows/db-ci.yml)
-# OnlineStoreDB
 
+# OnlineStoreDB
+[![DB CI](https://github.com/florasteve/online-store-database/actions/workflows/db-ci.yml/badge.svg?branch=main)](https://github.com/florasteve/online-store-database/actions/workflows/db-ci.yml)
 [![DB Tests](https://github.com/florasteve/online-store-database/actions/workflows/db-tests.yml/badge.svg?branch=main)](https://github.com/florasteve/online-store-database/actions/workflows/db-tests.yml)
 
-
-<p align="left">
-  <img alt="Docker" src="https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white">
-  <img alt="SQL Server" src="https://img.shields.io/badge/SQL%20Server-2022-CC2927?logo=microsoft%20sql%20server&logoColor=white">
-  <img alt="License" src="https://img.shields.io/badge/License-MIT-green">
-</p>
+<!-- Badges -->
+[![License](https://img.shields.io/github/license/florasteve/online-store-database)](LICENSE) [![Last commit](https://img.shields.io/github/last-commit/florasteve/online-store-database)](https://github.com/florasteve/online-store-database/commits/main) [![Open issues](https://img.shields.io/github/issues/florasteve/online-store-database)](https://github.com/florasteve/online-store-database/issues) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/florasteve/online-store-database/pulls) ![DB: SQL Server](https://img.shields.io/badge/DB-Microsoft%20SQL%20Server-CC2927?logo=microsoft-sql-server&logoColor=white) ![Container: Docker](https://img.shields.io/badge/Container-Docker-2496ED?logo=docker&logoColor=white)
 
 **OnlineStoreDB** — Dockerized SQL Server demo with normalized schema (Customers, Products, Orders, OrderDetails), computed `Subtotal`, timestamps, procs for safe inserts & order lifecycle, analytics views, and seed data.
 
