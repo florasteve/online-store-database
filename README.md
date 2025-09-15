@@ -89,3 +89,4 @@ ORDER BY Revenue DESC;
 ```sql
 EXEC dbo.CloseOrder @OrderID = 42;
 ```
+
