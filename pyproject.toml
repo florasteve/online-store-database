@@ -1,4 +1,4 @@
-[tool.sqlfluff]
+[tool.sqlfluff.core]
 dialect = "tsql"
 templater = "raw"
-exclude_rules = ["LT05"]
+exclude_rules = "LT05"  # allow long DDL lines

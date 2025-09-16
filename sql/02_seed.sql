@@ -1,38 +1,38 @@
-USE OnlineStoreDB;
+USE ONLINESTOREDB;
 GO
 
 /* Minimal seed using explicit values (keeps it portable for Docker demo)
    (IDs match CSVs for consistency) */
 
-SET IDENTITY_INSERT dbo.Customers ON;
-INSERT INTO dbo.Customers(CustomerID, Name, Email, Address, CreatedAt, UpdatedAt) VALUES
-(1,'Avery Johnson','avery.johnson@example.com','101 Maple St, Davidson NC', SYSUTCDATETIME(), SYSUTCDATETIME()),
-(2,'Jordan Lee','jordan.lee@example.com','22 Cedar Ave, Mooresville NC', SYSUTCDATETIME(), SYSUTCDATETIME()),
-(3,'Casey Nguyen','casey.nguyen@example.com','900 Lakeview Dr, Huntersville NC', SYSUTCDATETIME(), SYSUTCDATETIME()),
-(4,'Riley Patel','riley.patel@example.com','77 Main St, Charlotte NC', SYSUTCDATETIME(), SYSUTCDATETIME()),
-(5,'Skylar Kim','skylar.kim@example.com','45 Oak Rd, Cornelius NC', SYSUTCDATETIME(), SYSUTCDATETIME());
-SET IDENTITY_INSERT dbo.Customers OFF;
+SET IDENTITY_INSERT DBO.CUSTOMERS ON;
+INSERT INTO DBO.CUSTOMERS (CUSTOMERID, NAME, EMAIL, ADDRESS, CREATEDAT, UPDATEDAT) VALUES
+(1, 'Avery Johnson', 'avery.johnson@example.com', '101 Maple St, Davidson NC', SYSUTCDATETIME(), SYSUTCDATETIME()),
+(2, 'Jordan Lee', 'jordan.lee@example.com', '22 Cedar Ave, Mooresville NC', SYSUTCDATETIME(), SYSUTCDATETIME()),
+(3, 'Casey Nguyen', 'casey.nguyen@example.com', '900 Lakeview Dr, Huntersville NC', SYSUTCDATETIME(), SYSUTCDATETIME()),
+(4, 'Riley Patel', 'riley.patel@example.com', '77 Main St, Charlotte NC', SYSUTCDATETIME(), SYSUTCDATETIME()),
+(5, 'Skylar Kim', 'skylar.kim@example.com', '45 Oak Rd, Cornelius NC', SYSUTCDATETIME(), SYSUTCDATETIME());
+SET IDENTITY_INSERT DBO.CUSTOMERS OFF;
 
-SET IDENTITY_INSERT dbo.Products ON;
-INSERT INTO dbo.Products(ProductID, Name, Price, StockQuantity, CreatedAt, UpdatedAt) VALUES
-(1,'Wireless Mouse',19.99,120,SYSUTCDATETIME(),SYSUTCDATETIME()),
-(2,'Mechanical Keyboard',89.50,60,SYSUTCDATETIME(),SYSUTCDATETIME()),
-(3,'USB-C Cable 1m',8.99,300,SYSUTCDATETIME(),SYSUTCDATETIME()),
-(4,'27\" 4K Monitor',279.00,25,SYSUTCDATETIME(),SYSUTCDATETIME()),
-(5,'Laptop Stand',34.95,80,SYSUTCDATETIME(),SYSUTCDATETIME()),
-(6,'Noise-Cancelling Headphones',149.99,40,SYSUTCDATETIME(),SYSUTCDATETIME());
-SET IDENTITY_INSERT dbo.Products OFF;
+SET IDENTITY_INSERT DBO.PRODUCTS ON;
+INSERT INTO DBO.PRODUCTS (PRODUCTID, NAME, PRICE, STOCKQUANTITY, CREATEDAT, UPDATEDAT) VALUES
+(1, 'Wireless Mouse', 19.99, 120, SYSUTCDATETIME(), SYSUTCDATETIME()),
+(2, 'Mechanical Keyboard', 89.50, 60, SYSUTCDATETIME(), SYSUTCDATETIME()),
+(3, 'USB-C Cable 1m', 8.99, 300, SYSUTCDATETIME(), SYSUTCDATETIME()),
+(4, '27\" 4K Monitor', 279.00, 25, SYSUTCDATETIME(), SYSUTCDATETIME()),
+(5, 'Laptop Stand', 34.95, 80, SYSUTCDATETIME(), SYSUTCDATETIME()),
+(6, 'Noise-Cancelling Headphones', 149.99, 40, SYSUTCDATETIME(), SYSUTCDATETIME());
+SET IDENTITY_INSERT DBO.PRODUCTS OFF;
 
-SET IDENTITY_INSERT dbo.Orders ON;
-INSERT INTO dbo.Orders(OrderID, CustomerID, OrderDate, TotalAmount, CreatedAt, UpdatedAt) VALUES
-(1,1,'2025-09-10T14:00:00Z',0,SYSUTCDATETIME(),SYSUTCDATETIME()),
-(2,2,'2025-09-11T16:30:00Z',0,SYSUTCDATETIME(),SYSUTCDATETIME()),
-(3,3,'2025-09-12T12:05:00Z',0,SYSUTCDATETIME(),SYSUTCDATETIME());
-SET IDENTITY_INSERT dbo.Orders OFF;
+SET IDENTITY_INSERT DBO.ORDERS ON;
+INSERT INTO DBO.ORDERS (ORDERID, CUSTOMERID, ORDERDATE, TOTALAMOUNT, CREATEDAT, UPDATEDAT) VALUES
+(1, 1, '2025-09-10T14:00:00Z', 0, SYSUTCDATETIME(), SYSUTCDATETIME()),
+(2, 2, '2025-09-11T16:30:00Z', 0, SYSUTCDATETIME(), SYSUTCDATETIME()),
+(3, 3, '2025-09-12T12:05:00Z', 0, SYSUTCDATETIME(), SYSUTCDATETIME());
+SET IDENTITY_INSERT DBO.ORDERS OFF;
 
 /* Use proc to add detail lines to ensure totals & stock update */
-EXEC dbo.AddOrderItem @OrderID=1, @ProductID=1, @Quantity=2;  -- 2 * 19.99
-EXEC dbo.AddOrderItem @OrderID=1, @ProductID=3, @Quantity=1;  -- 1 * 8.99
-EXEC dbo.AddOrderItem @OrderID=2, @ProductID=2, @Quantity=1;  -- 1 * 89.50
-EXEC dbo.AddOrderItem @OrderID=2, @ProductID=5, @Quantity=1;  -- 1 * 34.95
-EXEC dbo.AddOrderItem @OrderID=3, @ProductID=6, @Quantity=1;  -- 1 * 149.99
+EXEC DBO.ADDORDERITEM @OrderID = 1, @ProductID = 1, @Quantity = 2;  -- 2 * 19.99
+EXEC DBO.ADDORDERITEM @OrderID = 1, @ProductID = 3, @Quantity = 1;  -- 1 * 8.99
+EXEC DBO.ADDORDERITEM @OrderID = 2, @ProductID = 2, @Quantity = 1;  -- 1 * 89.50
+EXEC DBO.ADDORDERITEM @OrderID = 2, @ProductID = 5, @Quantity = 1;  -- 1 * 34.95
+EXEC DBO.ADDORDERITEM @OrderID = 3, @ProductID = 6, @Quantity = 1;  -- 1 * 149.99

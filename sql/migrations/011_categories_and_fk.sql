@@ -1,28 +1,40 @@
-IF OBJECT_ID('dbo.Categories','U') IS NULL
-BEGIN
-  CREATE TABLE dbo.Categories(
-    CategoryID INT IDENTITY(1,1) PRIMARY KEY,
-    Name NVARCHAR(100) NOT NULL UNIQUE,
-    IsActive BIT NOT NULL CONSTRAINT DF_Categories_IsActive DEFAULT(1)
-  );
-END;
+IF OBJECT_ID('dbo.Categories', 'U') IS NULL
+    BEGIN
+        CREATE TABLE dbo.categories (
+            categoryid INT IDENTITY (1, 1) PRIMARY KEY,
+            name NVARCHAR(100) NOT NULL UNIQUE,
+            isactive BIT NOT NULL CONSTRAINT df_categories_isactive DEFAULT (1)
+        );
+    END;
 
-IF OBJECT_ID('dbo.Products','U') IS NOT NULL
-AND COL_LENGTH('dbo.Products','CategoryID') IS NULL
-BEGIN
-  ALTER TABLE dbo.Products ADD CategoryID INT NULL;
-  IF NOT EXISTS (SELECT 1 FROM dbo.Categories WHERE Name='Uncategorized')
-    INSERT INTO dbo.Categories(Name) VALUES ('Uncategorized');
-  DECLARE @DefaultCategoryID INT = (SELECT TOP 1 CategoryID FROM dbo.Categories WHERE Name='Uncategorized');
-  UPDATE dbo.Products SET CategoryID = ISNULL(CategoryID, @DefaultCategoryID);
-  ALTER TABLE dbo.Products ALTER COLUMN CategoryID INT NOT NULL;
-  IF NOT EXISTS (
-    SELECT 1 FROM sys.foreign_keys WHERE name='FK_Products_Categories'
-  )
-    ALTER TABLE dbo.Products ADD CONSTRAINT FK_Products_Categories
-      FOREIGN KEY(CategoryID) REFERENCES dbo.Categories(CategoryID);
-  IF NOT EXISTS (
-    SELECT 1 FROM sys.indexes WHERE name='IX_Products_CategoryID' AND object_id=OBJECT_ID('dbo.Products')
-  )
-    CREATE INDEX IX_Products_CategoryID ON dbo.Products(CategoryID);
-END
+IF
+    OBJECT_ID('dbo.Products', 'U') IS NOT NULL
+    AND COL_LENGTH('dbo.Products', 'CategoryID') IS NULL
+    BEGIN
+        ALTER TABLE dbo.products ADD categoryid INT NULL;
+        IF
+            NOT EXISTS (
+                SELECT 1 FROM dbo.categories
+                WHERE name = 'Uncategorized'
+            )
+            INSERT INTO dbo.categories (name) VALUES ('Uncategorized');
+        DECLARE @DefaultCategoryID INT = (
+            SELECT TOP 1 categoryid FROM dbo.categories
+            WHERE name = 'Uncategorized'
+        );
+        UPDATE dbo.products SET categoryid = ISNULL(categoryid, @DefaultCategoryID);
+        ALTER TABLE dbo.products ALTER COLUMN categoryid INT NOT NULL;
+        IF
+            NOT EXISTS (
+                SELECT 1 FROM sys.foreign_keys
+                WHERE name = 'FK_Products_Categories'
+            )
+            ALTER TABLE dbo.products ADD CONSTRAINT fk_products_categories
+            FOREIGN KEY (categoryid) REFERENCES dbo.categories (categoryid);
+        IF
+            NOT EXISTS (
+                SELECT 1 FROM sys.indexes
+                WHERE name = 'IX_Products_CategoryID' AND object_id = OBJECT_ID('dbo.Products')
+            )
+            CREATE INDEX ix_products_categoryid ON dbo.products (categoryid);
+    END
