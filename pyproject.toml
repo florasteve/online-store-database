@@ -1,7 +1,4 @@
 [tool.sqlfluff]
 dialect = "tsql"
-exclude_rules = ["LT05"]  # allow some long lines in DDL
-templater = "jinja"
-
-[tool.sqlfluff.rules]
-comma_style = "leading"
+templater = "raw"
+exclude_rules = ["LT05"]
