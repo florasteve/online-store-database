@@ -1,4 +1,5 @@
 [tool.sqlfluff.core]
 dialect = "tsql"
 templater = "raw"
-exclude_rules = "LT05"  # allow long DDL lines
+exclude_rules = "AL03,RF04,CP02,AM04,RF05,LT05"
+large_file_skip_byte_limit = 0

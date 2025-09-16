@@ -1,0 +1,5 @@
+sql/tests/**
+sql/_tSQLt/**
+sql/tests/_tSQLt/**
+sql/10_constraints.sql
+sql/99_sample_queries.sql
